@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Location</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Live Location</h1>
+    <div id="locationInfo">
+        <p>Fetching live location...</p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-database.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+           apiKey: "AIzaSyDY_kmYpJs5EDexvf2nPSWrLaOYoiF8H10",
+  authDomain: "trackablelinks-9b3df.firebaseapp.com",
+  projectId: "trackablelinks-9b3df",
+  storageBucket: "trackablelinks-9b3df.firebasestorage.app",
+  messagingSenderId: "824869195870",
+  appId: "1:824869195870:web:937e99332966ea3a0d64cf"
+
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Extract phone number and unique ID from URL
+        const params = new URLSearchParams(window.location.search);
+        const phoneNumber = params.get('phone');
+        const uniqueId = params.get('id');
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+
+                // Save data to Firebase
+                db.ref('customers/' + uniqueId).set({
+                    phoneNumber,
+                    latitude,
+                    longitude,
+                    timestamp: new Date().toLocaleString()
+                });
+
+                // Display data for the current customer
+                const locationInfo = document.getElementById('locationInfo');
+                locationInfo.innerHTML = `
+                    <p><strong>Phone Number:</strong> ${phoneNumber}</p>
+                    <p><strong>Unique ID:</strong> ${uniqueId}</p>
+                    <p><strong>Latitude:</strong> ${latitude}</p>
+                    <p><strong>Longitude:</strong> ${longitude}</p>
+                `;
+            },
+            (error) => {
+                document.getElementById('locationInfo').innerHTML = `
+                    <p>Error: Unable to fetch location. Please enable location permissions.</p>
+                `;
+            }
+        );
+    </script>
+</body>
+</html>
