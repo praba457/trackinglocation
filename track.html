@@ -43,7 +43,11 @@
             (position) => {
                 const { latitude, longitude } = position.coords;
 
-                // Save data to Firebase
+                // Log for debugging
+                console.log("Location fetched successfully!");
+                console.log("Latitude:", latitude, "Longitude:", longitude);
+
+                // Save location details to Firebase
                 db.ref('customers/' + uniqueId).set({
                     phoneNumber,
                     latitude,
