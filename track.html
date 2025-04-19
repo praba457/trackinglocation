@@ -15,13 +15,14 @@
         <p>Fetching live location...</p>
     </div>
 
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-database.js"></script>
 
     <script>
-        // Firebase configuration
+        // Firebase Configuration
         const firebaseConfig = {
-           apiKey: "AIzaSyDY_kmYpJs5EDexvf2nPSWrLaOYoiF8H10",
+            apiKey: "AIzaSyDY_kmYpJs5EDexvf2nPSWrLaOYoiF8H10",
   authDomain: "trackablelinks-9b3df.firebaseapp.com",
   projectId: "trackablelinks-9b3df",
   storageBucket: "trackablelinks-9b3df.firebasestorage.app",
@@ -34,11 +35,12 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Extract phone number and unique ID from URL
+        // Extract parameters from URL
         const params = new URLSearchParams(window.location.search);
         const phoneNumber = params.get('phone');
         const uniqueId = params.get('id');
 
+        // Request location permission and fetch coordinates
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
@@ -55,7 +57,7 @@
                     timestamp: new Date().toLocaleString()
                 });
 
-                // Display data for the current customer
+                // Display location details
                 const locationInfo = document.getElementById('locationInfo');
                 locationInfo.innerHTML = `
                     <p><strong>Phone Number:</strong> ${phoneNumber}</p>
@@ -65,9 +67,22 @@
                 `;
             },
             (error) => {
-                document.getElementById('locationInfo').innerHTML = `
-                    <p>Error: Unable to fetch location. Please enable location permissions.</p>
-                `;
+                let errorMessage = '';
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'Location permission denied by the user.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'Location information is unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'The request to fetch location timed out.';
+                        break;
+                    default:
+                        errorMessage = 'An unknown error occurred while fetching location.';
+                }
+                const locationInfo = document.getElementById('locationInfo');
+                locationInfo.innerHTML = `<p>Error: ${errorMessage}</p>`;
             }
         );
     </script>
